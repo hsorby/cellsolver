@@ -5,7 +5,7 @@ import time
 import matplotlib.pyplot as graph
 from scipy.integrate import ode
 
-from codesamples import hodgkin_huxley_squid_axon_model_1952 as hh
+from cellsolver.codesamples import hodgkin_huxley_squid_axon_model_1952 as hh
 
 
 KNOWN_SOLVERS = ['euler', 'dop853', 'vode']
