@@ -1,6 +1,8 @@
 
-import sys
+import os
 import time
+import argparse
+import importlib.util
 
 import matplotlib.pyplot as graph
 from scipy.integrate import ode
@@ -12,6 +14,7 @@ KNOWN_SOLVERS = ['euler', 'dop853', 'vode']
 
 run_timeit = False
 
+
 class TimeExecution(object):
 
     def __init__(self, number=10):
@@ -21,18 +24,20 @@ class TimeExecution(object):
 
     def __call__(self, f):
         global run_timeit
+
         def wrapped_f(*args, **kwargs):
             if run_timeit:
                 ts = time.time()
                 for _ in range(self._number):
                     f(*args, **kwargs)
                 te = time.time()
-                print('%r  average = %2.2f ms' % \
+                print('%r  average = %2.2f ms' %
                       (f.__name__, ((te - ts) * 1000)/self._number))
 
             return f(*args, **kwargs)
 
         return wrapped_f
+
 
 def initialize_system(system):
     rates = system.createRateVector()
@@ -44,17 +49,18 @@ def initialize_system(system):
 
     return states, rates, variables
 
+
 @TimeExecution(number=10)
 def solve_using_euler(system, step_size, interval):
     states, rates, variables = initialize_system(system)
 
-    results = [ [] for _ in range(len(states)) ]
+    results = [[] for _ in range(len(states))]
     x = []
 
     t = interval[0]
     end = interval[-1]
     while t < end:
-        hh.computeRates(t, states, rates, variables)
+        system.computeRates(t, states, rates, variables)
         delta = list(map(lambda var: var * step_size, rates))
         states = [sum(x) for x in zip(states, delta)]
 
@@ -66,22 +72,26 @@ def solve_using_euler(system, step_size, interval):
 
     return x, results
 
+
 def update(voi, states, rates, variables):
     hh.computeRates(voi, states, rates, variables)
     return rates
+
 
 @TimeExecution(number=10)
 def solve_using_dop853(system, step_size, interval):
     return solve_using_scipy(system, "dop853", step_size, interval)
 
+
 @TimeExecution(number=10)
 def solve_using_vode(system, step_size, interval):
     return solve_using_scipy(system, "vode", step_size, interval)
 
+
 def solve_using_scipy(system, method, step_size, interval):
     states, rates, variables = initialize_system(system)
 
-    results = [ [] for _ in range(len(states)) ]
+    results = [[] for _ in range(len(states))]
     x = []
 
     solver = ode(update)
@@ -99,41 +109,67 @@ def solve_using_scipy(system, method, step_size, interval):
 
     return x, results
 
-def main():
-    global run_timeit
-    args = sys.argv[:]
-    args.pop(0)
-    if "timeit" in args:
-        args.remove("timeit")
-        run_timeit = True
-    if len(args):
-        solver_type = args.pop(0)
-        if solver_type not in KNOWN_SOLVERS:
-            print("Unknown solver {0} reverting to Euler instead.".format(solver_type))
-            solver_type = "euler"
+
+def module_from_file(module_name, file_path):
+    spec = importlib.util.spec_from_file_location(module_name, file_path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def is_valid_file(parser, arg):
+    expanded_path = os.path.expanduser(arg)
+    expanded_path = os.path.expandvars(expanded_path)
+    full_path = os.path.abspath(expanded_path)
+    if os.path.exists(full_path) and os.path.isfile(full_path):
+        loaded_module = module_from_file("irrelevant", full_path)
+        return loaded_module  # return the actual loaded module
     else:
-        solver_type = "euler"
+        parser.error("The file %s does not exist!" % arg)
 
-    step_size = 0.001
-    interval = [0.0, 65.35]
 
-    if solver_type == "euler":
-        [x, y_n] = solve_using_euler(hh, step_size, interval)
-    elif solver_type == "dop853":
-        [x, y_n] = solve_using_dop853(hh, step_size, interval)
-    elif solver_type == "vode":
-        [x, y_n] = solve_using_vode(hh, step_size, interval)
-    else:
-        x = []
-        y_n = []
+def process_arguments():
+    parser = argparse.ArgumentParser(description="Solve ODE's described by libCellML generated Python output.")
+    parser.add_argument('--solver', dest='solver', action='store_const', const='euler', default="euler",
+                        help='specify the solver: {0} (default: euler)'.format(KNOWN_SOLVERS))
+    parser.add_argument('--timeit', action='store', type=int, nargs='?', const=10, default=0,
+                        help='number of iterations for evaluating execution elapsed time (default: 0)')
+    parser.add_argument('--interval', action='store', type=float, nargs=2, default=[0.0, 100.0],
+                        help='interval to run the simulation for (default: [0.0, 100.0])')
+    parser.add_argument('--step-size', action='store', type=float, nargs=1, default=0.001,
+                        help='the step size to output results at (default: 0.001)')
+    parser.add_argument('module', nargs='?', default=hh, type=lambda file_name: is_valid_file(parser, file_name),
+                        help='a Python module of Python code generated by libCellML')
 
+    return parser
+
+
+def plot_solution(x, y_n):
     graph.xlabel("Time (msecs)")
     graph.ylabel("Y-axis")
     graph.title("A test graph")
     for index, result in enumerate(y_n):
-        graph.plot(x, result, label='id {0}'.format(index))
+        graph.plot(x, result, label='state {0}'.format(index))
     graph.legend()
     graph.show()
+
+
+def main():
+
+    parser = process_arguments()
+    args = parser.parse_args()
+
+    if args.solver == "euler":
+        [x, y_n] = solve_using_euler(args.module, args.step_size, args.interval)
+    elif args.solver == "dop853":
+        [x, y_n] = solve_using_dop853(args.module, args.step_size, args.interval)
+    elif args.solver == "vode":
+        [x, y_n] = solve_using_vode(args.module, args.step_size, args.interval)
+    else:
+        x = []
+        y_n = []
+
+    plot_solution(x, y_n)
 
 
 if __name__ == "__main__":
