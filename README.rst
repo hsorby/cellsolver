@@ -35,7 +35,7 @@ There is also functionality to time the execution of the solver.  To make use of
 'timeit' to the command.  Using this form of the command will run the solver 10 times and print out the average time
 to execute the full simulation.  For example to time the 'dop853' solver use the following command::
 
-cellsolver timeit dop853
+ cellsolver timeit dop853
 
 Be aware that this may take some time to finish executing.
 
