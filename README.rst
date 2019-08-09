@@ -14,8 +14,8 @@ Use 'pip' to install from the repository::
 
 This will install the latest version available on the 'master' branch.
 
-Running
--------
+Run
+---
 
 The installation will add a command line tool for running cellsolver.  To run the application type::
 
@@ -29,7 +29,7 @@ add one of the known solvers to the command line, for example::
 
  cellsolver vode
 
-will run the application using the 'vode' solver.
+will run the application using the 'vode' solver from scipy.
 
 There is also functionality to time the execution of the solver.  To make use of this add the command line parameter
 'timeit' to the command.  Using this form of the command will run the solver 10 times and print out the average time
@@ -39,8 +39,8 @@ to execute the full simulation.  For example to time the 'dop853' solver use the
 
 Be aware that this may take some time to finish executing.
 
-Note: The default solver is (forward) Euler.  Using a solver unknown to the application will result in this solver being
-used.
+Note: The default solver is (forward) Euler.  Using a solver unknown to the application will result in the (forward) Euler 
+solver being used.
 
 Additional
 ----------
