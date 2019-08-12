@@ -9,14 +9,18 @@ def geqFunc(x, y):
 def andFunc(x, y):
     return 1.0 if (bool(x) & bool(y)) else 0.0
 
+
 def createStateVector():
     return [nan]*4
+
 
 def createRateVector():
     return [nan]*4
 
+
 def createVariableVector():
     return [nan]*18
+
 
 def initializeConstants(states, variables):
     states[0] = 0.05
@@ -33,6 +37,7 @@ def computeComputedConstants(variables):
     variables[6] = variables[2]+10.613
     variables[8] = variables[2]+115.0
     variables[14] = variables[2]-12.0
+
 
 def computeRates(voi, states, rates, variables):
     variables[10] = -0.1*(states[3]+50.0)/(exp(-(states[3]+50.0)/10.0)-1.0)
