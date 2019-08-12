@@ -10,7 +10,7 @@ Install
 
 Use 'pip' to install from the repository::
 
- pip install git+https://github.com/hsorby/cellsolver.git@master
+ pip install git+https://github.com/hsorby/cellsolver.git@v0.1.1
 
 This will install the latest version available on the 'master' branch.
 
