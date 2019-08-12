@@ -30,6 +30,8 @@ The application will show the solution of the Hodgkin Huxley model as a plot of 
    :width: 500
    :alt: Solution of Hodgkin Huxley squid axon 1952 model using (forward) Euler
 
+   Solution of Hodgkin Huxley squid axon 1952 model.
+
 Usage
 -----
 
