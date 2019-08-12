@@ -10,7 +10,7 @@ Install
 
 Use 'pip' to install from the repository::
 
- pip install git+https://github.com/hsorby/cellsolver.git@v0.1.1
+ pip install git+https://github.com/hsorby/cellsolver.git@master
 
 This will install the latest version available on the 'master' branch.
 
@@ -21,8 +21,14 @@ The installation will add a command line tool for running 'cellsolver'.  To run 
 
  cellsolver
 
-on the command line to execute the default solution which is the Hodgkin Huxley squid axon 1952 model solved using
+on the command line to execute the default solution which is the Hodgkin Huxley squid axon 1952 model solved using the
 (forward) Euler method.
+
+The application will show the solution of the Hodgkin Huxley model as a plot of the four state variables.
+
+.. figure:: docs/images/default_output.png
+   :width: 500
+   :alt: Solution of Hodgkin Huxley squid axon 1952 model using (forward) Euler
 
 Usage
 -----
@@ -71,27 +77,11 @@ perform in the timed loop by adding an integer parameter to the '--timeit' argum
 Will time the simulation for 67 runs and report on the average elapsed time for each run.
 
 The optional positional module argument can be a file path.  This file path must be a module of Python code
-generated from libCellML.  **However**, the Python code generated directly from libCellML requires modification
-before it can be used by 'cellsolver'.  'cellsolver' expects three functions which are not currently provided
-by the libCellML code generation process.  The three functions required are:
+generated from libCellML.
 
-1. createStateVector
-2. createRateVector
-3. createVariableVector
+.. warning::
+  'cellsolver' now relies on code generated from the codebase available `here <https://github.com:hsorby/libcellml@master>`_
 
-For the Hodgkin Huxley squid axon 1952 model the following functions need to be added::
-
- def createStateVector():
-     return [nan]*4
-
- def createRateVector():
-     return [nan]*4
-
- def createVariableVector():
-     return [nan]*18
-
-The vectors created in these three functions are of the correct size for the model.  An external model will
-need to create these vectors (of the appropriate size) for 'cellsolver' to work correctly.
 
 Additional
 ----------
