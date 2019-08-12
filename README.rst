@@ -80,7 +80,7 @@ The optional positional module argument can be a file path.  This file path must
 generated from libCellML.
 
 .. warning::
-  'cellsolver' now relies on code generated from the codebase available `here <https://github.com:hsorby/libcellml>`_
+  'cellsolver' now relies on code generated from the codebase available `here <https://github.com/hsorby/libcellml/>`_
 
 
 Additional
