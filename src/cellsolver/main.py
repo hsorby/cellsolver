@@ -35,12 +35,12 @@ class TimeExecution(object):
 
 
 def initialize_system(system):
-    rates = system.createRateVector()
-    states = system.createStateVector()
-    variables = system.createVariableVector()
+    rates = system.create_rate_vector()
+    states = system.create_state_vector()
+    variables = system.create_variable_vector()
 
-    system.initializeConstants(states, variables)
-    system.computeComputedConstants(variables)
+    system.initialize_constants(states, variables)
+    system.compute_computed_constants(variables)
 
     return states, rates, variables
 
@@ -55,7 +55,7 @@ def solve_using_euler(system, step_size, interval):
     t = interval[0]
     end = interval[-1]
     while t < end:
-        system.computeRates(t, states, rates, variables)
+        system.compute_rates(t, states, rates, variables)
         delta = list(map(lambda var: var * step_size, rates))
         states = [sum(x) for x in zip(states, delta)]
 
@@ -69,7 +69,7 @@ def solve_using_euler(system, step_size, interval):
 
 
 def update(voi, states, system, rates, variables):
-    system.computeRates(voi, states, rates, variables)
+    system.compute_rates(voi, states, rates, variables)
     return rates
 
 
@@ -117,7 +117,8 @@ def is_valid_file(parser, arg):
     expanded_path = os.path.expandvars(expanded_path)
     full_path = os.path.abspath(expanded_path)
     if os.path.exists(full_path) and os.path.isfile(full_path):
-        loaded_module = module_from_file("irrelevant", full_path)
+        module_name = os.path.splitext(os.path.basename(full_path))[0]
+        loaded_module = module_from_file(module_name, full_path)
         return loaded_module  # return the actual loaded module
     else:
         parser.error("The file %s does not exist!" % arg)
@@ -163,7 +164,7 @@ def main():
         parser.print_help()
 
     if valid_solution:
-        plot_solution(x, y_n)
+        plot_solution(x, y_n, args.module.VOI, args.module.STATE_VECTOR_INFORMATION_ARRAY, args.module.__name__)
 
 
 if __name__ == "__main__":
