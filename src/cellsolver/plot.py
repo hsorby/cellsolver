@@ -1,4 +1,3 @@
-
 import math
 import matplotlib.pyplot as graph
 from matplotlib import cm
@@ -15,7 +14,7 @@ def plot_solution(x, y_n, x_info, y_n_info, title):
         extent = extents[index]
         graph_row = ordered_unique_extents.index(extent) + 1
         graph.subplot(graph_rows, 1, graph_row)
-        graph.plot(x, result, label="{0}\{1}".format(y_n_info[index]['component'], y_n_info[index]['name']),
+        graph.plot(x, result, label=r"{0}\{1}".format(y_n_info[index]['component'], y_n_info[index]['name']),
                    color=colours[index])
         graph.legend()
         if graph_row not in created_subplots:
