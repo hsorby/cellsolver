@@ -15,7 +15,8 @@ def plot_solution(x, y_n, x_info, y_n_info, title):
         extent = extents[index]
         graph_row = ordered_unique_extents.index(extent) + 1
         graph.subplot(graph_rows, 1, graph_row)
-        graph.plot(x, result, label=y_n_info[index]['name'], color=colours[index])
+        graph.plot(x, result, label="{0}\{1}".format(y_n_info[index]['component'], y_n_info[index]['name']),
+                   color=colours[index])
         graph.legend()
         if graph_row not in created_subplots:
             if graph_row == len(ordered_unique_extents):
