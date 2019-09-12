@@ -35,9 +35,9 @@ class TimeExecution(object):
 
 
 def initialize_system(system):
-    rates = system.create_state_vector()
-    states = system.create_state_vector()
-    variables = system.create_variable_vector()
+    rates = system.create_states_array()
+    states = system.create_states_array()
+    variables = system.create_variables_array()
 
     system.initialize_constants(states, variables)
     system.compute_computed_constants(variables)
@@ -164,7 +164,7 @@ def main():
         parser.print_help()
 
     if valid_solution:
-        plot_solution(x, y_n, args.module.VOI_INFORMATION, args.module.STATE_VECTOR_INFORMATION_ARRAY, args.module.__name__)
+        plot_solution(x, y_n, args.module.VOI_INFO, args.module.STATE_INFO, args.module.__name__)
 
 
 if __name__ == "__main__":
