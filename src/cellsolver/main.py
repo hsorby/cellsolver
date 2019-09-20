@@ -39,7 +39,7 @@ def initialize_system(system):
     states = system.create_states_array()
     variables = system.create_variables_array()
 
-    system.initialize_constants(states, variables)
+    system.initialize_states_and_constants(states, variables)
     system.compute_computed_constants(variables)
 
     return states, rates, variables
