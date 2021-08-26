@@ -41,8 +41,12 @@ def _get_colours(num_colours):
 def _get_extents(data_in, data_info):
     extents = []
     for index, data in enumerate(data_in):
-        extents.append('{0} {1} {2}'.format(math.floor(math.log10(abs(max(data)))),
-                                            math.floor(math.log10(abs(min(data)))),
+        abs_max = abs(max(data))
+        max_value = math.floor(math.log10(abs_max)) if abs_max > 0.0 else 0.0
+        abs_min = abs(min(data))
+        min_value = math.floor(math.log10(abs_min)) if abs_min > 0.0 else 0.0
+        extents.append('{0} {1} {2}'.format(max_value,
+                                            min_value,
                                             data_info[index]['units']))
 
     return extents

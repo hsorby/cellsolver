@@ -4,7 +4,6 @@ import codecs
 
 from setuptools import setup
 
-
 here = os.path.abspath(os.path.dirname(__file__))
 
 
@@ -25,7 +24,7 @@ def find_version(*file_paths):
 setup(
     name='cellsolver',
     version=find_version('src', 'cellsolver', '__init__.py'),
-    packages=['cellsolver', 'cellsolver.codesamples'],
+    packages=['cellsolver', 'cellsolver.codesamples', 'cellsolver.solvers'],
     package_dir={'': 'src'},
     url='https://github.com/hsorby/cellsolver',
     license='Apache 2.0',
@@ -33,7 +32,7 @@ setup(
     author_email='h.sorby@auckland.ac.nz',
     description='A simple test harness for running Python generated code from libCellML.',
     install_requires=['matplotlib', 'scipy'],
-    entry_points = {
+    entry_points={
         'console_scripts': ['cellsolver=cellsolver.main:main'],
     }
 )

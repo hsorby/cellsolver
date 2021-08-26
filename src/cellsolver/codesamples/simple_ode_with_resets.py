@@ -45,7 +45,7 @@ def create_resets_array():
 
 
 def initialize_states_and_constants(states, variables):
-    states[0] = 1.0
+    states[0] = 3.0
 
 
 def compute_computed_constants(variables):
@@ -61,7 +61,7 @@ def compute_variables(voi, states, rates, variables):
 
 
 def compute_reset_test_value_differences(voi, states, variables, test_value_differences):
-    test_value_differences[0] = states[0] - 2
+    test_value_differences[0] = states[0] - 4
 
 
 def _apply_order_to_active_resets(active_resets):
