@@ -1,5 +1,4 @@
 
-
 Cell Solver
 ===========
 
@@ -80,10 +79,6 @@ Will time the simulation for 67 runs and report on the average elapsed time for 
 
 The optional positional module argument can be a file path.  This file path must be a module of Python code
 generated from libCellML.
-
-.. warning::
-  'cellsolver' now relies on code generated from the codebase available `here <https://github.com/hsorby/libcellml/>`_
-
 
 Additional
 ----------
