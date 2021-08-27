@@ -1,25 +1,22 @@
 
 from scipy.integrate import ode
 
+from cellsolver.solvers.version_0_1_0 import update
 
-def initialize_system(system):
+
+def initialize_system(system, external_variable_function):
     rates = system.create_states_array()
     states = system.create_states_array()
     variables = system.create_variables_array()
 
-    system.initialize_states_and_constants(states, variables)
+    system.initialise_states_and_constants(states, variables, external_variable_function)
     system.compute_computed_constants(variables)
 
     return states, rates, variables
 
 
-def update(voi, states, system, rates, variables):
-    system.compute_rates(voi, states, rates, variables)
-    return rates
-
-
 def euler_based_solver(system, step_size, interval, external_module):
-    states, rates, variables = initialize_system(system)
+    states, rates, variables = initialize_system(system, external_module.initialise_external_variable)
 
     if isinstance(step_size, list):
         step_size = step_size[0]
@@ -35,7 +32,8 @@ def euler_based_solver(system, step_size, interval, external_module):
         for index, value in enumerate(states):
             results[index].append(value)
 
-        system.compute_rates(t, states, rates, variables)
+        system.compute_variables(t, states, rates, variables, external_module.update_external_variable)
+        system.compute_rates(t, states, rates, variables, external_module.update_external_variable)
 
         delta = list(map(lambda var: var * step_size, rates))
         states = [sum(x) for x in zip(states, delta)]
@@ -46,7 +44,7 @@ def euler_based_solver(system, step_size, interval, external_module):
 
 
 def scipy_based_solver(system, method, step_size, interval, external_module):
-    states, rates, variables = initialize_system(system)
+    states, rates, variables = initialize_system(system, external_module.initialise_external_variable)
 
     if isinstance(step_size, list):
         step_size = step_size[0]

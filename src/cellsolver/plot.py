@@ -28,6 +28,17 @@ def plot_solution(x, y_n, x_info, y_n_info, title):
     graph.show()
 
 
+def plot_sensitivity(x, y_n, x_info, y_info, title):
+    graph.subplot(1, 1, 1)
+    for y in y_n:
+        graph.plot(x, y, label=f'{y_info["component"]}.{y_info["name"]}', color='blue')
+
+    graph.title(title)
+    graph.ylabel(y_info['units'])
+    graph.xlabel(f"{x_info['name']} ({x_info['units']})")
+    graph.show()
+
+
 def _get_colours(num_colours):
     colours = []
     colour_map = cm.get_cmap('hsv')

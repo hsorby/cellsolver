@@ -19,7 +19,7 @@ def update(voi, states, system, rates, variables):
     return rates
 
 
-def euler_based_solver(system, step_size, interval):
+def euler_based_solver(system, step_size, interval, external_module):
     states, rates, variables, resets = initialize_system(system)
 
     if isinstance(step_size, list):
@@ -55,7 +55,7 @@ def euler_based_solver(system, step_size, interval):
     return x, results
 
 
-def scipy_based_solver(system, method, step_size, interval):
+def scipy_based_solver(system, method, step_size, interval, external_module):
     states, rates, variables, resets = initialize_system(system)
 
     if isinstance(step_size, list):
