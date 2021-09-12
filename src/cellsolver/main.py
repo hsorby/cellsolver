@@ -6,9 +6,10 @@ import pickle
 
 from cellsolver.codesamples import hodgkin_huxley_squid_axon_model_1952 as hh
 from cellsolver.plot import plot_solution
-from cellsolver.utilities import TimeExecution, load_config, info_items_list, not_matching_info_items, matching_info_items
+from cellsolver.utilities import TimeExecution, load_config, info_items_list, not_matching_info_items, matching_info_items, apply_config
 
-KNOWN_SOLVERS = ['euler', 'dop853', 'vode']
+SCIPY_SOLVERS = ['dopri5', 'dop853', 'vode', 'lsoda']
+KNOWN_SOLVERS = ['euler', *SCIPY_SOLVERS]
 
 
 def convert_version_to_module_name(version):
@@ -51,26 +52,21 @@ def system_solver(system):
         module_name += '_reset_capable'
     if system_has_external_variables(system):
         module_name += '_external_variables'
+
     i = importlib.import_module(module_name)
     return i
 
 
 @TimeExecution
-def solve_using_euler(system, step_size, interval, external_module=None):
+def solve_using_euler(system, simulation_parameters, external_module=None):
     solver_module = system_solver(system)
-    return solver_module.euler_based_solver(system, step_size, interval, external_module)
+    return solver_module.euler_based_solver(system, simulation_parameters, external_module)
 
 
 @TimeExecution
-def solve_using_dop853(system, step_size, interval, external_module=None):
+def solve_using_scipy(system, solver_method, simulation_parameters, external_module=None):
     solver_module = system_solver(system)
-    return solver_module.scipy_based_solver(system, "dop853", step_size, interval, external_module)
-
-
-@TimeExecution
-def solve_using_vode(system, step_size, interval, external_module=None):
-    solver_module = system_solver(system)
-    return solver_module.scipy_based_solver(system, "vode", step_size, interval, external_module)
+    return solver_module.scipy_based_solver(system, solver_method, simulation_parameters, external_module)
 
 
 def module_from_file(module_name, file_path):
@@ -130,7 +126,9 @@ def process_arguments():
     parser.add_argument('--interval', action='store', type=float, nargs=2, default=[0.0, 100.0],
                         help='interval to run the simulation for (default: [0.0, 100.0])')
     parser.add_argument('--step-size', action='store', type=float, nargs=1, default=0.001,
-                        help='the step size to output results at (default: 0.001)')
+                        help='the step size to use for integration (default: 0.001)')
+    parser.add_argument('--result-step-size', action='store', type=float, nargs=1, default=0.1,
+                        help='the result step size to output results at (default: 0.1)')
     parser.add_argument('--config', type=lambda file_name: possible_json_file(parser, file_name), nargs='?', default=None,
                         help='a JSON configuration file')
     parser.add_argument('--output-file', default=None,
@@ -143,25 +141,11 @@ def process_arguments():
     return parser
 
 
-def apply_config(config, y_n, y_info):
-    indices = range(len(y_n))
-    if 'plot_excludes' in config:
-        info_items = info_items_list(config['plot_excludes'])
-        indices = [x for x, z in enumerate(y_info) if not_matching_info_items(z, info_items)]
-    if 'plot_includes' in config:
-        info_items = info_items_list(config['plot_includes'])
-        indices = [x for x, z in enumerate(y_info) if matching_info_items(z, info_items)]
-
-    y_n_out = [y_n[i] for i in indices]
-    y_info_out = [y_info[i] for i in indices]
-    return y_n_out, y_info_out
-
-
 def main():
     parser = process_arguments()
     args = parser.parse_args()
 
-    config = {'show_plot': True, 'save_output_to_file': False}
+    config = {'show_plot': True, 'parameter_includes': [], 'parameter_excludes': []}
 
     if args.config is not None:
         config.update(load_config(args.config))
@@ -175,12 +159,14 @@ def main():
         external_module = args.ext_var
 
     valid_solution = True
+    simulation_parameters = {
+        'integration': {'step_size': args.step_size, 'interval': args.interval},
+        'result': {'step_size': args.result_step_size, 'config': config},
+    }
     if args.solver == "euler":
-        [x, y_n] = solve_using_euler(args.module, args.step_size, args.interval, external_module)
-    elif args.solver == "dop853":
-        [x, y_n] = solve_using_dop853(args.module, args.step_size, args.interval, external_module)
-    elif args.solver == "vode":
-        [x, y_n] = solve_using_vode(args.module, args.step_size, args.interval, external_module)
+        [x, y_n] = solve_using_euler(args.module, simulation_parameters, external_module)
+    elif args.solver in SCIPY_SOLVERS:
+        [x, y_n] = solve_using_scipy(args.module, args.solver, simulation_parameters, external_module)
     else:
         x = []
         y_n = []
@@ -189,15 +175,18 @@ def main():
         parser.print_help()
 
     if valid_solution:
-        y_n_wanted, state_info_wanted = apply_config(config, y_n, args.module.STATE_INFO)
         plot_title = args.module.__name__
 
+        parameter_info = [*args.module.STATE_INFO, *args.module.VARIABLE_INFO]
+        indices = apply_config(config, parameter_info)
+        y_n_info = [parameter_info[i] for i in indices]
+
         if config['show_plot']:
-            plot_solution(x, y_n_wanted, args.module.VOI_INFO, state_info_wanted, plot_title)
+            plot_solution(x, y_n, args.module.VOI_INFO, y_n_info, plot_title)
 
         if args.output_file is not None:
             with open(args.output_file, 'wb') as f:
-                pickle.dump({'x': x, 'x_info': args.module.VOI_INFO, 'y_n': y_n_wanted, 'y_n_info': state_info_wanted, 'title': plot_title}, f)
+                pickle.dump({'x': x, 'x_info': args.module.VOI_INFO, 'y_n': y_n, 'y_n_info': y_n_info, 'title': plot_title}, f)
 
 
 if __name__ == "__main__":

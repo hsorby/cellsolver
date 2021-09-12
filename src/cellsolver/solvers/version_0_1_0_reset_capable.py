@@ -19,8 +19,11 @@ def update(voi, states, system, rates, variables):
     return rates
 
 
-def euler_based_solver(system, step_size, interval, external_module):
+def euler_based_solver(system, simulation_parameters, external_module):
     states, rates, variables, resets = initialize_system(system)
+
+    step_size = simulation_parameters['integration']['step_size']
+    interval = simulation_parameters['integration']['interval']
 
     if isinstance(step_size, list):
         step_size = step_size[0]
@@ -55,8 +58,11 @@ def euler_based_solver(system, step_size, interval, external_module):
     return x, results
 
 
-def scipy_based_solver(system, method, step_size, interval, external_module):
+def scipy_based_solver(system, method, simulation_parameters, external_module):
     states, rates, variables, resets = initialize_system(system)
+
+    step_size = simulation_parameters['integration']['step_size']
+    interval = simulation_parameters['integration']['interval']
 
     if isinstance(step_size, list):
         step_size = step_size[0]

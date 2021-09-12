@@ -53,3 +53,16 @@ def load_config(config_file):
         content = f.read()
 
     return json.loads(content)
+
+
+def apply_config(config, y_info):
+    indices = range(len(y_info))
+
+    if 'parameter_includes' in config and len(config['parameter_includes']):
+        info_items = info_items_list(config['parameter_includes'])
+        indices = [x for x, z in enumerate(y_info) if matching_info_items(z, info_items)]
+    elif 'parameter_excludes' in config and len(config['parameter_excludes']):
+        info_items = info_items_list(config['parameter_excludes'])
+        indices = [x for x, z in enumerate(y_info) if not_matching_info_items(z, info_items)]
+
+    return indices
